@@ -40,6 +40,15 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
+             ->navigationGroups([
+            'Company Management',
+            'ESG Data',
+            'System',
+            'User Management',
+            
+        ])
+ 
+
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

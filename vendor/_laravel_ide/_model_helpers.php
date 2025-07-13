@@ -305,6 +305,17 @@ namespace App\Models {
     /**
      * App\Models\Company
      *
+     * @property \Illuminate\Support\Carbon|null $updated_at
+     * @property \Illuminate\Support\Carbon|null $created_at
+     * @property string|null $sustainability_commitment
+     * @property string|null $vision
+     * @property string|null $mission
+     * @property string|null $logo_path
+     * @property string $color_code
+     * @property string $reporting_date
+     * @property string $location
+     * @property string $name
+     * @property int $id
      * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subsidiary> $subsidiaries
      * @property-read int|null $subsidiaries_count
      * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
@@ -317,6 +328,17 @@ namespace App\Models {
      * @property-read int|null $socialData_count
      * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\GovernanceData> $governanceData
      * @property-read int|null $governanceData_count
+     * @method static \Illuminate\Database\Eloquent\Builder<Company>|Company whereId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Company>|Company whereName($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Company>|Company whereLocation($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Company>|Company whereReportingDate($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Company>|Company whereColorCode($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Company>|Company whereLogoPath($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Company>|Company whereMission($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Company>|Company whereVision($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Company>|Company whereSustainabilityCommitment($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Company>|Company whereCreatedAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Company>|Company whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Company>|Company newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Company>|Company newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Company>|Company query()
@@ -616,9 +638,41 @@ namespace App\Models {
     /**
      * App\Models\EconomicData
      *
+     * @property \Illuminate\Support\Carbon|null $updated_at
+     * @property \Illuminate\Support\Carbon|null $created_at
+     * @property float|null $community_investment
+     * @property float|null $government_payments
+     * @property float|null $capital_payments
+     * @property float|null $employee_wages
+     * @property float|null $operating_expenses
+     * @property float|null $other_income
+     * @property float|null $investment_revenue
+     * @property float|null $services_revenue
+     * @property float|null $goods_revenue
+     * @property float|null $international_vendor_spend
+     * @property float|null $local_vendor_spend
+     * @property mixed $year
+     * @property mixed $company_id
+     * @property int $id
      * @property-read \App\Models\Company $company
      * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Attachment> $attachments
      * @property-read int|null $attachments_count
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereCompanyId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereYear($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereLocalVendorSpend($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereInternationalVendorSpend($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereGoodsRevenue($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereServicesRevenue($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereInvestmentRevenue($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereOtherIncome($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereOperatingExpenses($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereEmployeeWages($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereCapitalPayments($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereGovernmentPayments($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereCommunityInvestment($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereCreatedAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<EconomicData>|EconomicData query()
@@ -918,9 +972,35 @@ namespace App\Models {
     /**
      * App\Models\EnvironmentData
      *
+     * @property \Illuminate\Support\Carbon|null $updated_at
+     * @property \Illuminate\Support\Carbon|null $created_at
+     * @property float|null $water_recycled
+     * @property float|null $water_consumption
+     * @property float|null $solar_generated
+     * @property float|null $electricity_consumption
+     * @property float|null $other_gas
+     * @property float|null $lpg_gas
+     * @property float|null $petrol_consumption
+     * @property float|null $diesel_consumption
+     * @property mixed $year
+     * @property mixed $company_id
+     * @property int $id
      * @property-read \App\Models\Company $company
      * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Attachment> $attachments
      * @property-read int|null $attachments_count
+     * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData whereId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData whereCompanyId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData whereYear($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData whereDieselConsumption($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData wherePetrolConsumption($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData whereLpgGas($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData whereOtherGas($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData whereElectricityConsumption($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData whereSolarGenerated($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData whereWaterConsumption($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData whereWaterRecycled($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData whereCreatedAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<EnvironmentData>|EnvironmentData query()
@@ -1824,7 +1904,17 @@ namespace App\Models {
     /**
      * App\Models\Subsidiary
      *
+     * @property \Illuminate\Support\Carbon|null $updated_at
+     * @property \Illuminate\Support\Carbon|null $created_at
+     * @property string $name
+     * @property mixed $company_id
+     * @property int $id
      * @property-read \App\Models\Company $company
+     * @method static \Illuminate\Database\Eloquent\Builder<Subsidiary>|Subsidiary whereId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Subsidiary>|Subsidiary whereCompanyId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Subsidiary>|Subsidiary whereName($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Subsidiary>|Subsidiary whereCreatedAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Subsidiary>|Subsidiary whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Subsidiary>|Subsidiary newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Subsidiary>|Subsidiary newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Subsidiary>|Subsidiary query()
@@ -2132,7 +2222,6 @@ namespace App\Models {
      * @property string $email
      * @property string $name
      * @property int $id
-     * @property-read \App\Models\Company $company
      * @property-read \Illuminate\Database\Eloquent\Collection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
      * @property-read int|null $notifications_count
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereId($value)

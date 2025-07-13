@@ -23,9 +23,7 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
-         'company_id', 'phone_number',
-        'department', 'position', 'join_date', 'employee_type',
-        'category', 'ethnicity', 'age', 'gender'
+        
     ];
 
     /**
@@ -53,9 +51,5 @@ class User extends Authenticatable implements FilamentUser
      public function canAccessPanel(Panel $panel): bool
     {
         return true;
-    }
-     public function company()
-    {
-        return $this->belongsTo(Company::class);
     }
 }

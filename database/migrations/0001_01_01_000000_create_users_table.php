@@ -19,30 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
-
- /*  $table->foreignId('company_id')->nullable()->constrained();
-    $table->string('phone_number')->nullable();
-    $table->string('department')->nullable();
-    $table->string('position')->nullable();
-    $table->date('join_date')->nullable();
-    $table->enum('employee_type', ['permanent', 'temporary', 'contract'])->nullable();
-    $table->enum('category', ['management', 'executive', 'non-executive', 'general_worker'])->nullable();
-    $table->string('ethnicity')->nullable();
-    $table->integer('age')->nullable();
-    $table->enum('gender', ['male', 'female', 'other'])->nullable(); */
-
         });
-
-
-
-
-
-
-
-
-
-
-        
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
