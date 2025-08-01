@@ -6,27 +6,41 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-Schema::create('companies', function (Blueprint $table) {
-    $table->id();
-    $table->string('name');
-    $table->string('location');
-    $table->string('reporting_date');
-    $table->string('color_code');
-    $table->string('logo_path')->nullable();
-    $table->text('mission')->nullable();
-    $table->text('vision')->nullable();
-    $table->text('sustainability_commitment')->nullable();
-    $table->timestamps();
-});    }
+        Schema::create('companies', function (Blueprint $table) {
+            $table->id();
+            
+            // Basic Information
+            $table->string('name');
+            $table->string('location');
+            $table->date('reporting_date');
+            $table->integer('total_subsidiaries')->default(0);
+            
+            // Branding
+            $table->string('color_code');
+            $table->string('logo_path')->nullable();
+            
+            // Mission/Vision
+            $table->text('mission')->nullable();
+            $table->text('vision')->nullable();
+            
+            // Sustainability Goals
+            $table->boolean('carbon_footprint_reduction')->default(false);
+            $table->boolean('sustainable_sourcing')->default(false);
+            $table->boolean('energy_efficiency')->default(false);
+            $table->boolean('waste_reduction')->default(false);
+            $table->boolean('employee_engagement')->default(false);
+            $table->text('other_sustainability_goals')->nullable();
+            
+            // Subsidiaries
+            $table->json('subsidiaries_list')->nullable();
+            
+            $table->timestamps();
+            $table->softDeletes();
+        });
+    }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('companies');

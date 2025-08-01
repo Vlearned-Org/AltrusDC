@@ -11,27 +11,34 @@ return new class extends Migration
      */
     public function up(): void
     {
-      Schema::create('environment_data', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('company_id')->constrained();
-    $table->integer('year');
-    
-    // Scope 1 Emissions
-    $table->float('diesel_consumption')->nullable();
-    $table->float('petrol_consumption')->nullable();
-    $table->float('lpg_gas')->nullable();
-    $table->float('other_gas')->nullable();
-    
-    // Scope 2 Emissions
-    $table->float('electricity_consumption')->nullable();
-    $table->float('solar_generated')->nullable();
-    
-    // Water Management
-    $table->float('water_consumption')->nullable();
-    $table->float('water_recycled')->nullable();
-    
-    $table->timestamps();
-});
+        Schema::create('environment_data', function (Blueprint $table) {
+            $table->id();
+        
+            
+            // Main headers
+            $table->string('metrics');  // Changed from specific columns to generic metrics
+            $table->string('person_in_charge')->nullable();
+            $table->string('unit')->nullable();
+            $table->float('emission_factor')->nullable();
+            
+            // Monthly columns
+            $table->float('april')->nullable();
+            $table->float('may')->nullable();
+            $table->float('june')->nullable();
+            $table->float('july')->nullable();
+            $table->float('august')->nullable();
+            $table->float('september')->nullable();
+            $table->float('october')->nullable();
+            $table->float('november')->nullable();
+            $table->float('december')->nullable();
+            $table->float('january')->nullable();
+            $table->float('february')->nullable();
+            $table->float('march')->nullable();
+            
+            $table->float('total_kg_co2')->nullable();
+            
+            $table->timestamps();
+        });
     }
 
     /**

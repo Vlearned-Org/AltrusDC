@@ -16,92 +16,116 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class EnvironmentDataResource extends Resource
 {
     protected static ?string $model = EnvironmentData::class;
-    protected static ?string $navigationGroup = 'ESG Data';
-    protected static ?string $navigationLabel = 'Environment Data';
-    protected static ?int $navigationSort = 1;
-    protected static ?string $navigationIcon = 'heroicon-o-globe-alt';
+
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static ?string $modelLabel = 'Environment Data';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Section::make('Basic Information')
-                    ->columns(3)
+                    ->columns(4)
                     ->schema([
-                        Forms\Components\Select::make('company_id')
-                            ->relationship('company', 'name')
+                        Forms\Components\TextInput::make('metrics')
                             ->required()
-                            ->label('Company')
-                            ->helperText('Select the company this data belongs to'),
+                            ->maxLength(255)
+                            ->columnSpan(2)
+                            ->label('Metric Name')
+                            ->helperText('The environmental metric being measured (e.g., Electricity, Water)'),
                             
-                        Forms\Components\TextInput::make('year')
-                            ->required()
+                        Forms\Components\TextInput::make('person_in_charge')
+                            ->maxLength(255)
+                            ->label('Responsible Person')
+                            ->helperText('Person accountable for this data'),
+                            
+                        Forms\Components\TextInput::make('unit')
+                            ->maxLength(255)
+                            ->label('Unit of Measurement')
+                            ->helperText('Unit of measurement (e.g., kWh, m³)'),
+                            
+                        Forms\Components\TextInput::make('emission_factor')
                             ->numeric()
-                            ->minValue(2000)
-                            ->maxValue(2100)
-                            ->label('Reporting Year')
-                            ->helperText('The year this environmental data applies to'),
+                            ->label('Emission Factor (kg CO₂/unit)')
+                            ->helperText('Conversion factor to CO₂ equivalent'),
                     ]),
                     
-                Forms\Components\Section::make('Scope 1 Emissions (Direct)')
-                    ->description('Fuel consumption and direct emissions')
-                    ->columns(3)
+                Forms\Components\Section::make('Monthly Data - Current Year')
+                    ->columns(4)
                     ->schema([
-                        Forms\Components\TextInput::make('diesel_consumption')
+                        Forms\Components\TextInput::make('april')
                             ->numeric()
-                            ->suffix('liters')
-                            ->label('Diesel Consumption')
-                            ->helperText('Total diesel used in vehicles/equipment'),
+                            ->label('April')
+                            ->helperText('Current year'),
                             
-                        Forms\Components\TextInput::make('petrol_consumption')
+                        Forms\Components\TextInput::make('may')
                             ->numeric()
-                            ->suffix('liters')
-                            ->label('Petrol Consumption')
-                            ->helperText('Total petrol used in vehicles/equipment'),
+                            ->label('May')
+                            ->helperText('Current year'),
                             
-                        Forms\Components\TextInput::make('lpg_gas')
+                        Forms\Components\TextInput::make('june')
                             ->numeric()
-                            ->suffix('kg')
-                            ->label('LPG Gas Usage')
-                            ->helperText('Liquefied petroleum gas consumption'),
+                            ->label('June')
+                            ->helperText('Current year'),
                             
-                        Forms\Components\TextInput::make('other_gas')
+                        Forms\Components\TextInput::make('july')
                             ->numeric()
-                            ->label('Other Gas Usage')
-                            ->helperText('Any other gaseous fuel consumption'),
+                            ->label('July')
+                            ->helperText('Current year'),
+                            
+                        Forms\Components\TextInput::make('august')
+                            ->numeric()
+                            ->label('August')
+                            ->helperText('Current year'),
+                            
+                        Forms\Components\TextInput::make('september')
+                            ->numeric()
+                            ->label('September')
+                            ->helperText('Current year'),
+                            
+                        Forms\Components\TextInput::make('october')
+                            ->numeric()
+                            ->label('October')
+                            ->helperText('Current year'),
+                            
+                        Forms\Components\TextInput::make('november')
+                            ->numeric()
+                            ->label('November')
+                            ->helperText('Current year'),
+                            
+                        Forms\Components\TextInput::make('december')
+                            ->numeric()
+                            ->label('December')
+                            ->helperText('Current year'),
                     ]),
                     
-                Forms\Components\Section::make('Scope 2 Emissions (Indirect)')
-                    ->description('Purchased electricity and energy')
-                    ->columns(3)
+                Forms\Components\Section::make('Monthly Data - Next Year')
+                    ->columns(4)
                     ->schema([
-                        Forms\Components\TextInput::make('electricity_consumption')
+                        Forms\Components\TextInput::make('january')
                             ->numeric()
-                            ->suffix('kWh')
-                            ->label('Electricity Consumption')
-                            ->helperText('Total grid electricity purchased'),
+                            ->label('January')
+                            ->helperText('Next year'),
                             
-                        Forms\Components\TextInput::make('solar_generated')
+                        Forms\Components\TextInput::make('february')
                             ->numeric()
-                            ->suffix('kWh')
-                            ->label('Solar Energy Generated')
-                            ->helperText('On-site renewable energy production'),
-                    ]),
-                    
-                Forms\Components\Section::make('Water Management')
-                    ->columns(3)
-                    ->schema([
-                        Forms\Components\TextInput::make('water_consumption')
-                            ->numeric()
-                            ->suffix('m³')
-                            ->label('Water Consumption')
-                            ->helperText('Total freshwater withdrawn'),
+                            ->label('February')
+                            ->helperText('Next year'),
                             
-                        Forms\Components\TextInput::make('water_recycled')
+                        Forms\Components\TextInput::make('march')
                             ->numeric()
-                            ->suffix('m³')
-                            ->label('Water Recycled')
-                            ->helperText('Rainwater/other recycled water used'),
+                            ->label('March')
+                            ->helperText('Next year'),
+                            
+                      // In your EnvironmentDataResource.php form method
+Forms\Components\TextInput::make('total_kg_co2')
+    ->numeric()
+    ->label('Total (kg CO₂)')
+    ->helperText('Automatically calculated sum of all months')
+    ->columnSpan(2)
+    ->disabled() // Makes the field non-editable
+    ->dehydrated(),
                     ]),
             ]);
     }
@@ -110,52 +134,83 @@ class EnvironmentDataResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('company.name')
-                    ->label('Company')
-                    ->sortable()
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('metrics')
+                    ->searchable()
+                    ->label('Metric'),
                     
-                Tables\Columns\TextColumn::make('year')
-                    ->label('Year')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('person_in_charge')
+                    ->searchable()
+                    ->label('Responsible'),
                     
-                Tables\Columns\TextColumn::make('diesel_consumption')
-                    ->label('Diesel')
-                    ->formatStateUsing(fn ($state) => $state ? number_format($state).' L' : '-')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('unit')
+                    ->searchable()
+                    ->label('Unit'),
                     
-                Tables\Columns\TextColumn::make('petrol_consumption')
-                    ->label('Petrol')
-                    ->formatStateUsing(fn ($state) => $state ? number_format($state).' L' : '-')
-                    ->sortable(),
+                // Current Year Months
+                Tables\Columns\TextColumn::make('april')
+                    ->numeric()
+                    ->label('Apr'),
                     
-                Tables\Columns\TextColumn::make('electricity_consumption')
-                    ->label('Electricity')
-                    ->formatStateUsing(fn ($state) => $state ? number_format($state).' kWh' : '-')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('may')
+                    ->numeric()
+                    ->label('May'),
                     
-                Tables\Columns\TextColumn::make('water_consumption')
-                    ->label('Water Use')
-                    ->formatStateUsing(fn ($state) => $state ? number_format($state).' m³' : '-')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('june')
+                    ->numeric()
+                    ->label('Jun'),
                     
-                Tables\Columns\TextColumn::make('water_recycled')
-                    ->label('Water Recycled')
-                    ->formatStateUsing(fn ($state) => $state ? number_format($state).' m³' : '-')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('july')
+                    ->numeric()
+                    ->label('Jul'),
+                    
+                Tables\Columns\TextColumn::make('august')
+                    ->numeric()
+                    ->label('Aug'),
+                    
+                Tables\Columns\TextColumn::make('september')
+                    ->numeric()
+                    ->label('Sep'),
+                    
+                Tables\Columns\TextColumn::make('october')
+                    ->numeric()
+                    ->label('Oct'),
+                    
+                Tables\Columns\TextColumn::make('november')
+                    ->numeric()
+                    ->label('Nov'),
+                    
+                Tables\Columns\TextColumn::make('december')
+                    ->numeric()
+                    ->label('Dec'),
+                    
+                // Next Year Months
+                Tables\Columns\TextColumn::make('january')
+                    ->numeric()
+                    ->label('Jan'),
+                    
+                Tables\Columns\TextColumn::make('february')
+                    ->numeric()
+                    ->label('Feb'),
+                    
+                Tables\Columns\TextColumn::make('march')
+                    ->numeric()
+                    ->label('Mar'),
+                    
+                Tables\Columns\TextColumn::make('total_kg_co2')
+                    ->numeric()
+                    ->label('Total')
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->label('Total')
+                    ]),
+                          
+                Tables\Columns\TextColumn::make('total_kg_co2')
+                    ->numeric()
+                    ->label('Total CO₂/Kg')
+                   
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('company')
-                    ->relationship('company', 'name'),
-                    
-                Tables\Filters\SelectFilter::make('year')
-                    ->options(
-                        EnvironmentData::query()
-                            ->orderBy('year', 'desc')
-                            ->pluck('year', 'year')
-                            ->unique()
-                            ->toArray()
-                    ),
+                //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -165,8 +220,7 @@ class EnvironmentDataResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->defaultSort('year', 'desc');
+            ]);
     }
 
     public static function getPages(): array

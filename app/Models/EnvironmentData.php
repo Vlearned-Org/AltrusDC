@@ -9,19 +9,72 @@ class EnvironmentData extends Model
 {
     use HasFactory;
 
+    protected $table = 'environment_data';
+
     protected $fillable = [
-        'company_id', 'year', 'diesel_consumption', 'petrol_consumption',
-        'lpg_gas', 'other_gas', 'electricity_consumption', 'solar_generated',
-        'water_consumption', 'water_recycled'
+        'metrics',
+        'person_in_charge',
+        'unit',
+        'emission_factor',
+        'april',
+        'may',
+        'june',
+        'july',
+        'august',
+        'september',
+        'october',
+        'november',
+        'december',
+        'january',
+        'february',
+        'march',
+        'total_kg_co2'
     ];
+
+    protected $casts = [
+        'emission_factor' => 'float',
+        'april' => 'float',
+        'may' => 'float',
+        'june' => 'float',
+        'july' => 'float',
+        'august' => 'float',
+        'september' => 'float',
+        'october' => 'float',
+        'november' => 'float',
+        'december' => 'float',
+        'january' => 'float',
+        'february' => 'float',
+        'march' => 'float',
+        'total_kg_co2' => 'float',
+    ];
+
+    protected static function booted()
+    {
+        static::saving(function ($model) {
+            $model->total_kg_co2 = $model->calculateTotal();
+        });
+    }
 
     public function company()
     {
         return $this->belongsTo(Company::class);
     }
 
-    public function attachments()
+    /**
+     * Calculate the total as sum of all months
+     */
+    public function calculateTotal()
     {
-        return $this->morphMany(Attachment::class, 'attachable');
+        $months = [
+            'april', 'may', 'june', 'july', 'august', 'september',
+            'october', 'november', 'december', 'january', 'february', 'march'
+        ];
+
+        $total = 0;
+        foreach ($months as $month) {
+            $total += (float) ($this->$month ?? 0);
+        }
+
+        return $total;
     }
 }
