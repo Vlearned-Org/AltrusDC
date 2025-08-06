@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 
@@ -40,7 +41,7 @@ class Company extends Model
     ];
 
     protected $appends = [
-        'sustainability_goals', 
+        'sustainability_goals' => 'array',
         'logo_url', 
         'subsidiaries_count',
         'active_programs'
@@ -155,5 +156,11 @@ class Company extends Model
     public function hasSubsidiary(string $name): bool
     {
         return $this->subsidiaries()->contains('name', $name);
+    }
+
+    // Eloquent relationship for subsidiaries
+    public function subsidiaryCompanies(): HasMany
+    {
+        return $this->hasMany(Subsidiary::class);
     }
 }

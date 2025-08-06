@@ -16,11 +16,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class TrainingResource extends Resource
 {
     protected static ?string $model = Training::class;
-    protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
+   
     protected static ?string $recordTitleAttribute = 'training_category';
-    protected static ?string $navigationGroup = 'Organization';
+    protected static ?string $navigationGroup = 'Training Management';
     protected static ?string $modelLabel = 'Training';
-    protected static ?string $navigationLabel = 'Trainings';
+    protected static ?string $navigationLabel = 'Training';
 
     public static function form(Form $form): Form
     {
@@ -30,7 +30,6 @@ class TrainingResource extends Resource
                     ->schema([
                         Forms\Components\Grid::make(3)
                             ->schema([
-                              
                                 Forms\Components\TextInput::make('pic_name')
                                     ->maxLength(255)
                                     ->default(null)
@@ -59,7 +58,11 @@ class TrainingResource extends Resource
                                     ->numeric()
                                     ->default(null)
                                     ->label('Duration (Hours)')
-                                    ->helperText('Total training hours'),
+                                    ->helperText('Hours per participant')
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                        self::updateAllCalculations($set, $get);
+                                    }),
                                 
                                 Forms\Components\TextInput::make('total_participants')
                                     ->numeric()
@@ -67,7 +70,15 @@ class TrainingResource extends Resource
                                     ->disabled()
                                     ->dehydrated()
                                     ->label('Total Participants')
-                                    ->helperText('Auto-calculated from participant breakdown'),
+                                    ->helperText('Auto-calculated total participants'),
+                                
+                                Forms\Components\TextInput::make('total_training_hours')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->label('Total Training Hours')
+                                    ->helperText('Auto-calculated total hours'),
                             ]),
                     ]),
                 
@@ -81,12 +92,7 @@ class TrainingResource extends Resource
                                     ->default(0)
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        $set('total_participants', 
-                                            (int)$state + 
-                                            (int)$get('executive') + 
-                                            (int)$get('non_executive') + 
-                                            (int)$get('general_worker')
-                                        );
+                                        self::updateAllCalculations($set, $get);
                                     })
                                     ->label('Management')
                                     ->helperText('Management-level participants'),
@@ -97,12 +103,7 @@ class TrainingResource extends Resource
                                     ->default(0)
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        $set('total_participants', 
-                                            (int)$get('management') + 
-                                            (int)$state + 
-                                            (int)$get('non_executive') + 
-                                            (int)$get('general_worker')
-                                        );
+                                        self::updateAllCalculations($set, $get);
                                     })
                                     ->label('Executives')
                                     ->helperText('Executive-level participants'),
@@ -113,12 +114,7 @@ class TrainingResource extends Resource
                                     ->default(0)
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        $set('total_participants', 
-                                            (int)$get('management') + 
-                                            (int)$get('executive') + 
-                                            (int)$state + 
-                                            (int)$get('general_worker')
-                                        );
+                                        self::updateAllCalculations($set, $get);
                                     })
                                     ->label('Non-Executives')
                                     ->helperText('Non-executive participants'),
@@ -129,18 +125,74 @@ class TrainingResource extends Resource
                                     ->default(0)
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        $set('total_participants', 
-                                            (int)$get('management') + 
-                                            (int)$get('executive') + 
-                                            (int)$get('non_executive') + 
-                                            (int)$state
-                                        );
+                                        self::updateAllCalculations($set, $get);
                                     })
                                     ->label('General Workers')
                                     ->helperText('General worker participants'),
                             ]),
                     ]),
+                
+                Forms\Components\Section::make('Training Hours Breakdown')
+                    ->schema([
+                        Forms\Components\Grid::make(4)
+                            ->schema([
+                                Forms\Components\TextInput::make('management_hours')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->label('Management Hours')
+                                    ->helperText('Management hours = Participants × Duration'),
+                                
+                                Forms\Components\TextInput::make('executive_hours')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->label('Executive Hours')
+                                    ->helperText('Executive hours = Participants × Duration'),
+                                
+                                Forms\Components\TextInput::make('non_executive_hours')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->label('Non-Exec Hours')
+                                    ->helperText('Non-exec hours = Participants × Duration'),
+                                
+                                Forms\Components\TextInput::make('general_worker_hours')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->label('General Worker Hours')
+                                    ->helperText('Worker hours = Participants × Duration'),
+                            ]),
+                    ]),
             ]);
+    }
+
+    protected static function updateAllCalculations(Forms\Set $set, Forms\Get $get): void
+    {
+        $trainingHours = (float)$get('training_hours');
+        $management = (int)$get('management');
+        $executive = (int)$get('executive');
+        $nonExecutive = (int)$get('non_executive');
+        $generalWorker = (int)$get('general_worker');
+
+        // Calculate total participants
+        $totalParticipants = $management + $executive + $nonExecutive + $generalWorker;
+        $set('total_participants', $totalParticipants);
+
+        // Calculate hours for each category
+        $set('management_hours', $management * $trainingHours);
+        $set('executive_hours', $executive * $trainingHours);
+        $set('non_executive_hours', $nonExecutive * $trainingHours);
+        $set('general_worker_hours', $generalWorker * $trainingHours);
+
+        // Calculate total training hours
+        $totalTrainingHours = ($management + $executive + $nonExecutive + $generalWorker) * $trainingHours;
+        $set('total_training_hours', $totalTrainingHours);
     }
 
     public static function table(Table $table): Table
@@ -158,18 +210,32 @@ class TrainingResource extends Resource
                     ->searchable()
                     ->label('Person In Charge')
                     ->sortable(),
-             
-                  Tables\Columns\TextColumn::make('training_hours')
+                
+                Tables\Columns\TextColumn::make('training_hours')
                     ->numeric(1)
-                    ->label('Training Hours')
+                    ->label('Hours Each')
                     ->sortable()
                     ->alignEnd()
-                    ->description('Duration'),
+                    ->description('Per participant'),
                 
-               
+                Tables\Columns\TextColumn::make('total_participants')
+                    ->numeric()
+                    ->label('Participants')
+                    ->sortable()
+                    ->color('success')
+                    ->alignEnd(),
+                
+                Tables\Columns\TextColumn::make('total_training_hours')
+                    ->numeric(1)
+                    ->label('Total Hours')
+                    ->sortable()
+                    ->color('primary')
+                    ->weight('bold')
+                    ->alignEnd(),
+                
                 Tables\Columns\TextColumn::make('management')
                     ->numeric()
-                    ->label('Management')
+                    ->label('Mgmt')
                     ->sortable()
                     ->color('primary')
                     ->alignEnd()
@@ -177,7 +243,7 @@ class TrainingResource extends Resource
                 
                 Tables\Columns\TextColumn::make('executive')
                     ->numeric()
-                    ->label('Executive')
+                    ->label('Exec')
                     ->sortable()
                     ->color('info')
                     ->alignEnd()
@@ -185,7 +251,7 @@ class TrainingResource extends Resource
                 
                 Tables\Columns\TextColumn::make('non_executive')
                     ->numeric()
-                    ->label('Non-Executive')
+                    ->label('Non-Exec')
                     ->sortable()
                     ->color('warning')
                     ->alignEnd()
@@ -193,20 +259,11 @@ class TrainingResource extends Resource
                 
                 Tables\Columns\TextColumn::make('general_worker')
                     ->numeric()
-                    ->label('General Workers')
+                    ->label('Workers')
                     ->sortable()
                     ->color('gray')
                     ->alignEnd()
                     ->toggleable(),
-                     Tables\Columns\TextColumn::make('total_participants')
-                    ->numeric()
-                    ->label('Total Participants')
-                    ->sortable()
-                    ->color('success')
-                    ->weight('bold')
-                    ->alignEnd(),
-                      
-              
                 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime('M d, Y')
@@ -279,7 +336,6 @@ class TrainingResource extends Resource
     {
         return [
             'index' => Pages\ManageTrainings::route('/'),
-         
         ];
     }
 }

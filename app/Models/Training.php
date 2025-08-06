@@ -18,13 +18,29 @@ class Training extends Model
         'executive',
         'non_executive',
         'general_worker',
+        'total_participants',
+        'management_hours',
+        'executive_hours',
+        'non_executive_hours',
+        'general_worker_hours',
+        'total_training_hours',
     ];
 
     protected static function booted()
     {
         static::saving(function ($model) {
-            $model->total_participants = $model->calculateTotalParticipants();
+            $model->calculateAllFields();
         });
+    }
+
+    public function calculateAllFields()
+    {
+        $this->total_participants = $this->calculateTotalParticipants();
+        $this->management_hours = $this->calculateCategoryHours('management');
+        $this->executive_hours = $this->calculateCategoryHours('executive');
+        $this->non_executive_hours = $this->calculateCategoryHours('non_executive');
+        $this->general_worker_hours = $this->calculateCategoryHours('general_worker');
+        $this->total_training_hours = $this->calculateTotalTrainingHours();
     }
 
     public function calculateTotalParticipants()
@@ -33,6 +49,19 @@ class Training extends Model
                ($this->executive ?? 0) + 
                ($this->non_executive ?? 0) + 
                ($this->general_worker ?? 0);
+    }
+
+    public function calculateCategoryHours($category)
+    {
+        return ($this->$category ?? 0) * ($this->training_hours ?? 0);
+    }
+
+    public function calculateTotalTrainingHours()
+    {
+        return $this->management_hours + 
+               $this->executive_hours + 
+               $this->non_executive_hours + 
+               $this->general_worker_hours;
     }
 
     public function getAttachmentUrlAttribute()
@@ -47,8 +76,9 @@ class Training extends Model
         $extension = strtolower(pathinfo($this->attachment, PATHINFO_EXTENSION));
         return in_array($extension, ['jpg', 'jpeg', 'png', 'gif']);
     }
+
     public function getNameAttribute()
-{
-    return "{$this->training_category} - {$this->pic_name}";
-}
+    {
+        return "{$this->training_category} - {$this->pic_name}";
+    }
 }

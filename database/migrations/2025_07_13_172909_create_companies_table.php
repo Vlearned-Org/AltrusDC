@@ -33,7 +33,7 @@ return new class extends Migration
             $table->boolean('employee_engagement')->default(false);
             $table->text('other_sustainability_goals')->nullable();
             
-            // Subsidiaries
+            // Subsidiaries (stored as JSON)
             $table->json('subsidiaries_list')->nullable();
             
             $table->timestamps();

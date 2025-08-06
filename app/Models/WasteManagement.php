@@ -9,6 +9,8 @@ class WasteManagement extends Model
 {
     use HasFactory;
 
+    protected $table = 'waste_management';
+
     protected $fillable = [
         'waste_type',
         'unit',

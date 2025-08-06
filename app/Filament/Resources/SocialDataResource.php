@@ -13,8 +13,9 @@ use Filament\Tables\Table;
 class SocialDataResource extends Resource
 {
     protected static ?string $model = SocialData::class;
-    protected static ?string $navigationIcon = 'heroicon-o-user-group';
-
+  
+ protected static ?string $navigationGroup = 'ESG Data';
+ protected static ?int $navigationSort = 2;
     public static function form(Form $form): Form
     {
         return $form

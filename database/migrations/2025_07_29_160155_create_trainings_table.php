@@ -19,6 +19,11 @@ return new class extends Migration
             $table->integer('non_executive')->default(0);
             $table->integer('general_worker')->default(0);
             $table->integer('total_participants')->default(0);
+            $table->decimal('management_hours', 10, 2)->default(0);
+            $table->decimal('executive_hours', 10, 2)->default(0);
+            $table->decimal('non_executive_hours', 10, 2)->default(0);
+            $table->decimal('general_worker_hours', 10, 2)->default(0);
+            $table->decimal('total_training_hours', 10, 2)->default(0);
             $table->timestamps();
         });
     }

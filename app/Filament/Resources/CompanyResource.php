@@ -14,12 +14,12 @@ use Illuminate\Database\Eloquent\Builder;
 class CompanyResource extends Resource
 {
     protected static ?string $model = Company::class;
-    protected static ?string $navigationIcon = 'heroicon-o-building-office';
     protected static ?string $modelLabel = 'Company';
     protected static ?string $navigationLabel = 'Companies';
     protected static ?string $recordTitleAttribute = 'name';
     protected static ?string $navigationGroup = 'Organization';
-
+    protected static ?int $navigationSort = 1;
+   
     public static function form(Form $form): Form
     {
         return $form
@@ -86,52 +86,57 @@ class CompanyResource extends Resource
                             
                         Forms\Components\Tabs\Tab::make('Sustainability')
                             ->schema([
-                                Forms\Components\Toggle::make('has_sustainability_goals')
-                                    ->label('Has Sustainability Goals?')
-                                    ->live()
-                                    ->columnSpanFull()
-                                    ->helperText('Toggle if your company has defined sustainability objectives'),
-                                    
                                 Forms\Components\Section::make('Sustainability Goals')
-                                    ->hidden(fn (Forms\Get $get) => !$get('has_sustainability_goals'))
                                     ->schema([
-                                        Forms\Components\CheckboxList::make('sustainability_goals')
-                                            ->label('Focus Areas')
-                                            ->options([
-                                                'carbon_footprint_reduction' => 'Carbon Reduction',
-                                                'sustainable_sourcing' => 'Sustainable Sourcing',
-                                                'energy_efficiency' => 'Energy Efficiency',
-                                                'waste_reduction' => 'Waste Reduction',
-                                                'employee_engagement' => 'Employee Engagement',
-                                            ])
-                                            ->columns(2)
-                                            ->searchable()
-                                            ->helperText('Select all applicable sustainability focus areas'),
+                                        Forms\Components\Checkbox::make('carbon_footprint_reduction')
+                                            ->label('Carbon Footprint Reduction'),
+                                        Forms\Components\Checkbox::make('sustainable_sourcing')
+                                            ->label('Sustainable Sourcing'),
+                                        Forms\Components\Checkbox::make('energy_efficiency')
+                                            ->label('Energy Efficiency'),
+                                        Forms\Components\Checkbox::make('waste_reduction')
+                                            ->label('Waste Reduction'),
+                                        Forms\Components\Checkbox::make('employee_engagement')
+                                            ->label('Employee Engagement'),
                                             
                                         Forms\Components\Textarea::make('other_sustainability_goals')
                                             ->label('Additional Goals')
                                             ->columnSpanFull()
                                             ->rows(2)
                                             ->helperText('Any other sustainability objectives not listed above'),
-                                    ]),
+                                    ])
+                                    ->columns(2),
                             ]),
                             
                         Forms\Components\Tabs\Tab::make('Subsidiaries')
                             ->schema([
-                                Forms\Components\Repeater::make('subsidiaries_list')
+                                Forms\Components\Repeater::make('subsidiaryCompanies')
                                     ->label('Subsidiary Companies')
+                                    ->relationship()
                                     ->schema([
                                         Forms\Components\TextInput::make('name')
                                             ->label('Subsidiary Name')
                                             ->required()
                                             ->maxLength(255)
                                             ->helperText('Name of the subsidiary company'),
+                                        Forms\Components\TextInput::make('ownership_percentage')
+                                            ->label('Ownership Percentage')
+                                            ->numeric()
+                                            ->suffix('%')
+                                            ->minValue(0)
+                                            ->maxValue(100)
+                                            ->default(100)
+                                            ->required()
+                                            ->helperText('Percentage of ownership in this subsidiary'),
                                     ])
                                     ->collapsible()
-                                    ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
+                                    ->itemLabel(fn (array $state): ?string => 
+                                        isset($state['name']) ? 
+                                        "{$state['name']} ({$state['ownership_percentage']}%)" : null
+                                    )
                                     ->addActionLabel('Add Subsidiary')
-                                    ->columns(1)
-                                    ->helperText('Optional: Add any subsidiary companies under this organization'),
+                                    ->columns(2)
+                                    ->helperText('Add subsidiary companies under this organization'),
                             ]),
                     ])
                     ->columnSpanFull(),
@@ -146,7 +151,10 @@ class CompanyResource extends Resource
                     ->label('Logo')
                     ->circular()
                     ->size(40)
-                    ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name='.urlencode($record->name).'&color=FFFFFF&background='.str_replace('#', '', $record->color_code ?? '000000')),
+                    ->defaultImageUrl(fn ($record) => 
+                        'https://ui-avatars.com/api/?name='.urlencode($record->name).
+                        '&color=FFFFFF&background='.str_replace('#', '', $record->color_code ?? '000000')
+                    ),
                 
                 Tables\Columns\TextColumn::make('name')
                     ->label('Company Name')
@@ -155,72 +163,31 @@ class CompanyResource extends Resource
                     ->weight('medium')
                     ->description(fn ($record) => $record->location),
                 
-                Tables\Columns\TextColumn::make('mission')
-                    ->label('Mission')
-                    ->limit(40)
-                    ->tooltip(fn ($record) => $record->mission)
-                    ->toggleable(),
-                
-                Tables\Columns\TextColumn::make('vision')
-                    ->label('Vision')
-                    ->limit(40)
-                    ->tooltip(fn ($record) => $record->vision)
-                    ->toggleable(),
-                
                 Tables\Columns\TextColumn::make('reporting_date')
                     ->label('Report Date')
                     ->date('M d, Y')
-                    ->sortable()
-                    ->alignRight(),
+                    ->sortable(),
                 
-                Tables\Columns\IconColumn::make('has_sustainability_goals')
+                Tables\Columns\TextColumn::make('active_programs')
                     ->label('Sustainability')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-badge')
-                    ->falseIcon('heroicon-o-x-mark'),
-                
-                Tables\Columns\TextColumn::make('sustainability_goals')
-                    ->label('Goals')
-                    ->formatStateUsing(function ($state) {
-                        if (empty($state)) return null;
-                        
-                        return Tables\Columns\Layout\Stack::make([
-                            Tables\Columns\TextColumn::make('')
-                                ->formatStateUsing(fn () => count($state).' goals')
-                                ->extraAttributes(['class' => 'font-medium']),
-                            Tables\Columns\TextColumn::make('')
-                                ->formatStateUsing(function () use ($state) {
-                                    return collect($state)->map(function ($goal) {
-                                        $labels = [
-                                            'carbon_footprint_reduction' => 'Carbon Reduction',
-                                            'sustainable_sourcing' => 'Sustainable Sourcing',
-                                            'energy_efficiency' => 'Energy Efficiency',
-                                            'waste_reduction' => 'Waste Reduction',
-                                            'employee_engagement' => 'Employee Engagement',
-                                        ];
-                                        return $labels[$goal] ?? $goal;
-                                    })->implode(', ');
-                                })
-                                ->extraAttributes(['class' => 'text-xs text-gray-500']),
-                        ]);
-                    })
-                    ->toggleable(),
-                
-                Tables\Columns\TextColumn::make('subsidiaries_list')
-                    ->label('Subsidiaries')
                     ->badge()
-                    ->color('primary')
-                    ->formatStateUsing(fn ($state) => count($state ?? []))
-                    ->toggleable(),
+                    ->color(fn (string $state): string => 
+                        $state === 'None' ? 'gray' : 'success'
+                    ),
                 
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created')
-                    ->date('M d, Y')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('subsidiaryCompanies_count')
+                    ->label('Subsidiaries')
+                    ->counts('subsidiaryCompanies')
+                    ->formatStateUsing(function ($state) {
+                        return $state ? "{$state} " . str('subsidiary')->plural($state) : '—';
+                    })
+                    ->badge()
+                    ->color(fn ($state) => $state == 0 ? 'gray' : 'primary')
+                    ->toggleable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('sustainability_goals')
+                    ->multiple()
                     ->label('Sustainability Goals')
                     ->options([
                         'carbon_footprint_reduction' => 'Carbon Reduction',
@@ -232,14 +199,16 @@ class CompanyResource extends Resource
                     ->query(function (Builder $query, array $data) {
                         if (!empty($data['values'])) {
                             foreach ($data['values'] as $goal) {
-                                $query->whereJsonContains('sustainability_goals', $goal);
+                                $query->where($goal, true);
                             }
                         }
                     }),
                 
                 Tables\Filters\Filter::make('has_subsidiaries')
                     ->label('Has Subsidiaries')
-                    ->query(fn (Builder $query): Builder => $query->whereJsonLength('subsidiaries_list', '>', 0)),
+                    ->query(fn (Builder $query): Builder => 
+                        $query->whereHas('subsidiaryCompanies')
+                    ),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

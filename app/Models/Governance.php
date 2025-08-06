@@ -9,6 +9,8 @@ class Governance extends Model
 {
     use HasFactory;
 
+    protected $table = 'governance';
+
     protected $fillable = [
         'fiscal_year',
         'anti_corruption_pic',

@@ -16,11 +16,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class WasteManagementResource extends Resource
 {
     protected static ?string $model = WasteManagement::class;
-    protected static ?string $navigationIcon = 'heroicon-o-trash';
+   
     protected static ?string $navigationLabel = 'Waste Tracking';
     protected static ?string $modelLabel = 'Waste Record';
-    
-    protected static ?string $navigationGroup = 'Organization';
+    protected static ?int $navigationSort = 3;
+   protected static ?string $navigationGroup = 'ESG Data';
 
     public static function form(Form $form): Form
     {

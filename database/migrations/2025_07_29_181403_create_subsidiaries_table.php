@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('subsidiaries', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-    $table->string('name');
-   
-    $table->timestamps();
-});
+            $table->id();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+            $table->string('name');
+            $table->decimal('ownership_percentage', 5, 2)->default(100.00);
+            $table->timestamps();
+        });
     }
 
     /**

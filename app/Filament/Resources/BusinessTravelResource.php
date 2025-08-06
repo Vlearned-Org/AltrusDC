@@ -12,16 +12,17 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
 
 class BusinessTravelResource extends Resource
 {
     protected static ?string $model = BusinessTravel::class;
-    protected static ?string $navigationIcon = 'heroicon-o-globe-alt';
-
+  
     protected static ?string $modelLabel = 'Business Travel';
-    protected static ?string $navigationLabel = 'Travel Records';
+    protected static ?string $navigationLabel = 'Business Travels';
    
-    protected static ?string $navigationGroup = 'Organization';
+    protected static ?string $navigationGroup = 'Travel Records';
     public static function form(Form $form): Form
     {
         return $form
@@ -177,6 +178,15 @@ class BusinessTravelResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->label('Delete selected'),
+                    ExportBulkAction::make()
+                        ->color('success')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->exports([
+                            ExcelExport::make()
+                                ->fromTable()
+                                ->askForWriterType()
+                                ->withFilename(fn () => 'selected-business-travel-' . date('Y-m-d'))
+                        ]),
                 ]),
             ])
             ->defaultSort('departure_date', 'desc')

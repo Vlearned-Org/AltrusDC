@@ -15,9 +15,8 @@ class SafetyTrainingResource extends Resource
 {
     protected static ?string $model = SafetyTraining::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-shield-check';
-
-    protected static ?string $navigationGroup = 'Safety Management';
+ 
+    protected static ?string $navigationGroup = 'Training Management';
 
     protected static ?int $navigationSort = 30;
 

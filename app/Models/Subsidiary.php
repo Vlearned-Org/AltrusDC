@@ -13,10 +13,12 @@ class Subsidiary extends Model
     protected $fillable = [
         'company_id',
         'name',
-       
+        'ownership_percentage',
     ];
 
- 
+    protected $casts = [
+        'ownership_percentage' => 'decimal:2',
+    ];
 
     public function company(): BelongsTo
     {
